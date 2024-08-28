@@ -1,0 +1,53 @@
+---
+title: "USGS api practice"
+author: "Haylee Oyler"
+format: html
+editor: source
+execute:
+  warning: false
+  message: false
+editor_options: 
+  chunk_output_type: console
+---
+
+#### Setup
+
+```{r}
+library(dataRetrieval)
+library(tidyverse)
+library(metajam)
+library(devtools)
+```
+
+## Use dataRetrieval
+
+```{r}
+# Using dataRetrieval get the discharge (ft³/s) time-series for the Ventura River (site 11118500) during the recent Hilary tropical storm from 2023-08-19 to 2023-08-22
+
+#Set parameters for the query
+siteNumber <- "11118500"
+parameterCd <- "00060" # Discharge
+statCd <- c("00001", "00003") # Mean and maximum
+startDate <- "2023-08-19"
+endDate <- "2023-08-22"
+
+# Query the API
+discharge <- readNWISdv(siteNumber, parameterCd, startDate, endDate) %>% 
+  rename(discharge_rate = X_00060_00003, 
+          date = Date)
+# Use uv: for instantaneous value instead!
+
+# Get parameter info
+# parameterCd <- "00618"
+# parameterINFO <- readNWISpCode(parameterCd)
+```
+
+```{r}
+ggplot(discharge, aes(x = date, y = discharge_rate)) +
+  geom_line(color = aoba_color("grey")) + 
+  theme_aoba()+
+  labs(title = "Ventura Stream Discharge Rate During Tropical Storm Hilary", 
+       x = "Date",
+       y = "Discharge rate (ft³/s)") 
+```
+The maximum discharge 
